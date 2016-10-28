@@ -132,17 +132,19 @@ vexAutonomous( void *arg )
 
 #define MOTOR_DRIVE_RIGHT_FRONT kVexMotor_8
 #define MOTOR_DRIVE_RIGHT_BEHIND kVexMotor_9
+
+//set the speed of the left drivetrain motors
+void motorDriveControlLeft(int16_t speed);
+
+//set the speed of the right drivetrain motors
+void motorDriveControlRight(int16_t speed);
+
 /*-----------------------------------------------------------------------------*/
 /** @brief      Driver control                                                 */
 /*-----------------------------------------------------------------------------*/
 /** @details
  *  This thread is started when the driver control period is started
  */
-
-void motorDriveControlLeft(int16_t speed);
-
-void motorDriveControlRight(int16_t speed);
-
 msg_t
 vexOperator( void *arg )
 {
@@ -165,16 +167,14 @@ vexOperator( void *arg )
 	return (msg_t)0;
 }
 
-//set the speed of the left motors
+//set the speed of the left drivetrain motors
 void motorDriveControlLeft(int16_t speed) {
 	vexMotorSet( MOTOR_DRIVE_LEFT_FRONT, speed);
-	vexMotorSet( MOTOR_DRIVE_LEFT_BEHIND, speed);
+	vexMotorSet( MOTOR_DRIVE_LEFT_BEHIND, -speed);
 }
 
-//set the speed of the right motors
+//set the speed of the right drivetrain motors
 void motorDriveControlRight(int16_t speed) {
 	vexMotorSet( MOTOR_DRIVE_RIGHT_FRONT, speed);
-	vexMotorSet( MOTOR_DRIVE_RIGHT_BEHIND, speed);
+	vexMotorSet( MOTOR_DRIVE_RIGHT_BEHIND, -speed);
 }
-
-
