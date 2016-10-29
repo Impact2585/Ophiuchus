@@ -41,10 +41,7 @@
 /*-----------------------------------------------------------------------------*/
 
 #include <stdlib.h>
-
-#include "ch.h"  		// needs for all ChibiOS programs
-#include "hal.h" 		// hardware abstraction layer header
-#include "vex.h"		// vex library header
+#include "systems.h" //the different robot systems
 
 // Digi IO configuration
 static  vexDigiCfg  dConfig[kVexDigital_Num] = {
@@ -127,17 +124,7 @@ vexAutonomous( void *arg )
 }
 
 
-#define MOTOR_DRIVE_LEFT_FRONT kVexMotor_3
-#define MOTOR_DRIVE_LEFT_BEHIND kVexMotor_2
 
-#define MOTOR_DRIVE_RIGHT_FRONT kVexMotor_8
-#define MOTOR_DRIVE_RIGHT_BEHIND kVexMotor_9
-
-//set the speed of the left drivetrain motors
-void motorDriveControlLeft(int16_t speed);
-
-//set the speed of the right drivetrain motors
-void motorDriveControlRight(int16_t speed);
 
 /*-----------------------------------------------------------------------------*/
 /** @brief      Driver control                                                 */
@@ -153,28 +140,17 @@ vexOperator( void *arg )
 	// Must call this
 	vexTaskRegister("operator");
 
+	//initialize the threads for the other tasks
+	initializeDriveSystemThread();
+	initializeLiftSystemThread();
+
 	// Run until asked to terminate
 	while(!chThdShouldTerminate()) {
-		int16_t yAxis = vexControllerGet(Ch3);
-		int16_t xAxis = vexControllerGet(Ch1);
 
-		motorDriveControlRight(yAxis + xAxis);
-		motorDriveControlLeft(yAxis - xAxis);
 		// Don't hog cpu
 		vexSleep( 25 );
 	}
-
 	return (msg_t)0;
 }
 
-//set the speed of the left drivetrain motors
-void motorDriveControlLeft(int16_t speed) {
-	vexMotorSet( MOTOR_DRIVE_LEFT_FRONT, speed);
-	vexMotorSet( MOTOR_DRIVE_LEFT_BEHIND, -speed);
-}
 
-//set the speed of the right drivetrain motors
-void motorDriveControlRight(int16_t speed) {
-	vexMotorSet( MOTOR_DRIVE_RIGHT_FRONT, speed);
-	vexMotorSet( MOTOR_DRIVE_RIGHT_BEHIND, -speed);
-}
