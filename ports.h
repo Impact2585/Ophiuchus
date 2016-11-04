@@ -1,7 +1,5 @@
 /*
  * ports.h
- *
- *  Created on: Oct 28, 2016
  */
 
 #ifndef PORTS_H_
@@ -15,6 +13,8 @@
 
 #define MOTOR_DRIVETRAIN_SWERVE kVexMotor_6
 
-#define LIFT_MOTOR_1 kVexMotor_4
-#define LIFT_MOTOR_2 kVexMotor_5
+#define SHOOTER_MOTOR_1 kVexMotor_4
+#define SHOOTER_MOTOR_2 kVexMotor_5
+
+#define SHOOTER_ENCODER kVexQuadEncoder_1
 #endif /* PORTS_H_ */

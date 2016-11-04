@@ -1,8 +1,5 @@
 /*
  * drivesystem.c
- *
- *  Created on: Oct 28, 2016
- *      Author: fibbonacci
  */
 #include "../ports.h"
 #include "../systems.h"

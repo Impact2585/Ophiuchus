@@ -1,7 +1,5 @@
 /*
  * systems.h
- *
- *  Created on: Oct 28, 2016
  */
 
 #ifndef SYSTEMS_H_
@@ -17,7 +15,6 @@
 #define X_AXIS Ch1
 #define SHOOT Btn6U
 
-
 //drive functions
 void motorDriveControlLeft(int16_t speed);
 void motorDriveControlRight(int16_t speed);
@@ -25,9 +22,16 @@ void setSwerveMotorSpeed(int16_t speed);
 void runDriveSystem(void);
 void initializeDriveSystemThread(void);
 
-//lift functions and constants
-#define DEFAULT_LIFT_SPEED 67
-void initializeLiftSystemThread(void);
-void setLiftSpeeds(int16_t);
+//shooter functions and constants
+#define DEFAULT_SHOOTER_SPEED 20
+void initializeShootSystemThread(void);
+void setShootSpeeds(int16_t);
+void rotateTowardsDegrees(int32_t degrees);
+int16_t getShooterEncoderID(void);
+int32_t getShooterEncoderValue(void);
+
+
+//get sign of number for all types
+#define sign(x) ((x > 0) - (x < 0))
 
 #endif /* SYSTEMS_H_ */
