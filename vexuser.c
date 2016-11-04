@@ -143,6 +143,7 @@ vexOperator( void *arg )
 	//initialize the threads for the other tasks
 	initializeDriveSystemThread();
 	initializeShootSystemThread();
+	initializeLiftSystemThread();
 
 	// Run until asked to terminate
 	while(!chThdShouldTerminate()) {

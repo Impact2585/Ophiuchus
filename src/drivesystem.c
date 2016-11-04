@@ -66,7 +66,3 @@ void motorDriveControlRight(int16_t speed) {
 	vexMotorSet( MOTOR_DRIVE_RIGHT_BEHIND, -speed);
 }
 
-//sets the speed of the swerve motors
-void setSwerveMotorSpeed(int16_t speed) {
-	vexMotorPositionSet(MOTOR_DRIVETRAIN_SWERVE, speed);
-}
