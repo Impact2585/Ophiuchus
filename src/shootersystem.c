@@ -3,6 +3,7 @@
  */
 #include "../systems.h"
 #include "../ports.h"
+#include <stdlib.h>
 
 static char* SHOOT_TASK_NAME = "shoot";
 
@@ -12,9 +13,23 @@ void runShootTask(void) {
 
 	//moves forward then back
 	if(shouldShoot) {
-		rotateTowardsDegrees(100);
-		rotateTowardsDegrees(-100);
+		timedShoot();
 	}
+}
+
+//use timed shoot
+void timedShoot(void) {
+	setShootSpeeds(DEFAULT_SHOOTER_SPEED);
+	vexSleep(SHOOT_TIME);
+	setShootSpeeds(-DEFAULT_SHOOTER_SPEED);
+	vexSleep(SHOOT_TIME);
+	setShootSpeeds(0);
+}
+
+//use encoder values to shoot
+void encoderShoot(void) {
+	rotateTowardsDegrees(100);
+	rotateTowardsDegrees(-100);
 }
 
 //default working area of the thread size is 512 bytes
@@ -59,7 +74,7 @@ int16_t getShooterEncoderID(void) {
 void rotateTowardsDegrees(int32_t degrees) {
 	//starts the encoder
 	vexEncoderStart(getShooterEncoderID());
-	while((getShooterEncoderValue() < degrees) ^ (getShooterEncoderValue() > degrees)) {
+	while(abs(getShooterEncoderValue()) < abs(degrees)) {
 		setShootSpeeds(sign(degrees)* DEFAULT_SHOOTER_SPEED);
 	}
 	//sets the motor speeds back to 0

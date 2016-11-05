@@ -5,11 +5,12 @@
 #include "../systems.h"
 #include "vex.h"
 #include "ch.h"
+#include <stdlib.h>
 
 static char* TASK_NAME = "drive";
 
 //true speed array
-const u32_t TrueSpeed[128] =
+const int16_t TrueSpeed[128] =
 {
   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
   0, 21, 21, 21, 22, 22, 22, 23, 24, 24,
@@ -30,10 +31,8 @@ const u32_t TrueSpeed[128] =
 void runDriveSystem() {
 	int16_t yAxis = vexControllerGet(Y_AXIS);
 	int16_t xAxis = vexControllerGet(X_AXIS);
-
-	motorDriveControlRight(sign(yAxis + xAxis)*TrueSpeed[abs(yAxis + xAxis)%127]);
-	motorDriveControlLeft(sign(yAxis - xAxis)*TrueSpeed[abs(yAxis - xAxis)%127]);
-	setSwerveMotorSpeed(xAxis);
+	motorDriveControlRight(sign(yAxis + xAxis)*TrueSpeed[abs(yAxis + xAxis) > 127 ? 127 : abs(yAxis + xAxis)]);
+	motorDriveControlLeft(sign(yAxis - xAxis)*TrueSpeed[abs(yAxis - xAxis) > 127  ? 127 : abs(yAxis - xAxis)]);
 }
 
 static WORKING_AREA(waDriveTask, DEFAULT_WA_SIZE);
