@@ -25,6 +25,7 @@ void initializeDriveSystemThread(void);
 
 //shooter functions and constants
 #define DEFAULT_SHOOTER_SPEED 20
+#define SHOOT_TIME 200
 void initializeShootSystemThread(void);
 void setShootSpeeds(int16_t);
 void rotateTowardsDegrees(int32_t degrees);
@@ -36,6 +37,8 @@ int32_t getShooterEncoderValue(void);
 void runLiftTask(void);
 void initializeLiftSystemThread(void);
 void setLiftSpeed(int16_t speed);
+void timedShoot(void);
+void encoderShoot(void);
 
 //get sign of number for all types
 #define sign(x) ((x > 0) - (x < 0))
