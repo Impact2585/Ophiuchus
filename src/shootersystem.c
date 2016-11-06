@@ -4,25 +4,35 @@
 #include "../systems.h"
 #include "../ports.h"
 #include <stdlib.h>
-
 static char* SHOOT_TASK_NAME = "shoot";
 
 //the lift task to run
 void runShootTask(void) {
+	int16_t forwardShoot = vexControllerGet(MANUAL_SHOOT_FORWARD);
+	int16_t backShoot = vexControllerGet(MANUAL_SHOOT_BACKWARD);
 	int16_t shouldShoot = vexControllerGet(SHOOT);
 
 	//moves forward then back
 	if(shouldShoot) {
 		timedShoot();
+	} else {
+		//manual control of the shooter
+		if(forwardShoot) {
+			setShootSpeeds(67);
+		} else if(backShoot) {
+			setShootSpeeds(-67);
+		} else {
+			setShootSpeeds(0);
+		}
 	}
 }
 
 //use timed shoot
 void timedShoot(void) {
 	setShootSpeeds(DEFAULT_SHOOTER_SPEED);
-	vexSleep(SHOOT_TIME);
+	vexSleep(3000);
 	setShootSpeeds(-DEFAULT_SHOOTER_SPEED);
-	vexSleep(SHOOT_TIME);
+	vexSleep(2500);
 	setShootSpeeds(0);
 }
 
@@ -56,8 +66,10 @@ void initializeShootSystemThread(void) {
 
 //sets the lift speeds
 void setShootSpeeds(int16_t speed) {
-	vexMotorSet(SHOOTER_MOTOR_1, -speed);
-	vexMotorSet(SHOOTER_MOTOR_2, speed);
+	vexMotorSet(SHOOTER_MOTOR_1, speed);
+	vexMotorSet(SHOOTER_MOTOR_2, -speed);
+	vexMotorSet(SHOOTER_MOTOR_BOTTOM_LEFT, speed);
+	vexMotorSet(SHOOTER_MOTOR_BOTTOM_RIGHT, -speed);
 }
 
 //get the shooter encoder's count

@@ -14,18 +14,35 @@
 #define Y_AXIS Ch3
 #define X_AXIS Ch1
 #define SHOOT Btn6U
+#define MANUAL_SHOOT_FORWARD Btn8U
+#define MANUAL_SHOOT_BACKWARD Btn8L
 #define LIFT_BACK Btn5D
 #define LIFT_FOWARD Btn5U
 
-//drive functions
+//drive functions and constants
+#define DEADZONE 15
+struct driveSystem {
+	int16_t yAxis;
+	int16_t xAxis;
+	int16_t reversedMode;
+	int8_t prevToggle;
+	int16_t leftSpeed;
+	int16_t rightSpeed;
+};
 void motorDriveControlLeft(int16_t speed);
 void motorDriveControlRight(int16_t speed);
-void runDriveSystem(void);
+void runDriveSystem(struct driveSystem* drivetrain);
 void initializeDriveSystemThread(void);
+void initializeDriveSystem(struct driveSystem* drivetrain);
+void setDriveTrainDeadZone(struct driveSystem* drivetrain);
+void calculateDriveSystemSpeed(struct driveSystem* drivetrain);
+void setReversed(struct driveSystem* drivetrain);
+
+
+
 
 //shooter functions and constants
-#define DEFAULT_SHOOTER_SPEED 20
-#define SHOOT_TIME 200
+#define DEFAULT_SHOOTER_SPEED 100
 void initializeShootSystemThread(void);
 void setShootSpeeds(int16_t);
 void rotateTowardsDegrees(int32_t degrees);
