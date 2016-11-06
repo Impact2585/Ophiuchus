@@ -28,11 +28,22 @@ const int16_t TrueSpeed[128] =
 };
 
 //the task to be run
-void runDriveSystem() {
-	int16_t yAxis = vexControllerGet(Y_AXIS);
-	int16_t xAxis = vexControllerGet(X_AXIS);
-	motorDriveControlRight(sign(yAxis + xAxis)*TrueSpeed[abs(yAxis + xAxis) > 127 ? 127 : abs(yAxis + xAxis)]);
-	motorDriveControlLeft(sign(yAxis - xAxis)*TrueSpeed[abs(yAxis - xAxis) > 127  ? 127 : abs(yAxis - xAxis)]);
+void runDriveSystem(struct driveSystem* drivetrain) {
+	drivetrain->yAxis = vexControllerGet(Y_AXIS);
+	drivetrain->xAxis = vexControllerGet(X_AXIS);
+	int16_t toggleDriveMode = vexControllerGet(Btn8U);
+
+	if(toggleDriveMode && !drivetrain->prevToggle) {
+		drivetrain->reversedMode ^= 1;
+	}
+
+	setDriveTrainDeadZone(drivetrain);
+	setReversed(drivetrain);
+	calculateDriveSystemSpeed(drivetrain);
+
+	motorDriveControlRight(drivetrain->rightSpeed);
+	motorDriveControlLeft(drivetrain->leftSpeed);
+	drivetrain->prevToggle = toggleDriveMode;
 }
 
 static WORKING_AREA(waDriveTask, DEFAULT_WA_SIZE);
@@ -41,12 +52,49 @@ static WORKING_AREA(waDriveTask, DEFAULT_WA_SIZE);
 static msg_t driveSystemThread(void* arg) {
 	(void)arg;
 	vexTaskRegister(TASK_NAME);
+	struct driveSystem drivetrain;
+	initializeDriveSystem(&drivetrain);
 	while(1) {
-		runDriveSystem();
+		runDriveSystem(&drivetrain);
 		vexSleep(25);
 	}
 	return (msg_t)0;
 }
+
+
+//initialize the drive system struct pointer
+void initializeDriveSystem(struct driveSystem* drivetrain) {
+	drivetrain->xAxis = 0;
+	drivetrain->yAxis = 0;
+	drivetrain->reversedMode = 0;
+	drivetrain->prevToggle = 0;
+	drivetrain->leftSpeed = 0;
+	drivetrain->rightSpeed = 0;
+}
+
+//reverses the axis values if the drivetrain is in reversed mode
+void setReversed(struct driveSystem* drivetrain) {
+	if(drivetrain->reversedMode) {
+		drivetrain->yAxis *= -1;
+	}
+}
+
+//calculates the left and right speeds of the drivetrain
+void calculateDriveSystemSpeed(struct driveSystem* drivetrain) {
+	int16_t right = drivetrain->yAxis - drivetrain->xAxis;
+	int16_t left = drivetrain->yAxis + drivetrain->xAxis;
+	drivetrain->rightSpeed = sign(right) * TrueSpeed[abs(right) > 127 ? 127 : abs(right)];
+	drivetrain->leftSpeed = sign(left) * TrueSpeed[abs(left) > 127 ? 127 : abs(left)];
+}
+
+//sets the xAxis and yAxis values to 0 if the absolute value is below 15
+void setDriveTrainDeadZone(struct driveSystem* drivetrain) {
+	if(abs(drivetrain->xAxis) < DEADZONE)
+		drivetrain->xAxis = 0;
+	if(abs(drivetrain->yAxis) < DEADZONE)
+		drivetrain->yAxis = 0;
+}
+
 
 //creates the drive task thread
 void initializeDriveSystemThread(void) {
@@ -55,13 +103,13 @@ void initializeDriveSystemThread(void) {
 
 //set the speed of the left drivetrain motors
 void motorDriveControlLeft(int16_t speed) {
-	vexMotorSet( MOTOR_DRIVE_LEFT_FRONT, -speed);
-	vexMotorSet( MOTOR_DRIVE_LEFT_BEHIND, -speed);
+	vexMotorSet( MOTOR_DRIVE_LEFT_FRONT, speed);
+	vexMotorSet( MOTOR_DRIVE_LEFT_BEHIND, speed);
 }
 
 //set the speed of the right drivetrain motors
 void motorDriveControlRight(int16_t speed) {
-	vexMotorSet( MOTOR_DRIVE_RIGHT_FRONT, -speed);
-	vexMotorSet( MOTOR_DRIVE_RIGHT_BEHIND, -speed);
+	vexMotorSet( MOTOR_DRIVE_RIGHT_FRONT, speed);
+	vexMotorSet( MOTOR_DRIVE_RIGHT_BEHIND, speed);
 }
 

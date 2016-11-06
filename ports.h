@@ -13,6 +13,9 @@
 
 #define SHOOTER_MOTOR_1 kVexMotor_4
 #define SHOOTER_MOTOR_2 kVexMotor_5
+#define SHOOTER_MOTOR_BOTTOM_LEFT kVexMotor_7
+#define SHOOTER_MOTOR_BOTTOM_RIGHT kVexMotor_6
+
 
 #define LIFT_MOTOR_1 kVexMotor_6
 #define LIFT_MOTOR_2 kVexMotor_7
