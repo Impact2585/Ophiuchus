@@ -113,7 +113,7 @@ vexAutonomous( void *arg )
 
 	// Must call this
 	vexTaskRegister("auton");
-
+	driveAndShootAuton();
 	while(1)
 	{
 		// Don't hog cpu
