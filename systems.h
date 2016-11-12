@@ -57,6 +57,9 @@ void setLiftSpeed(int16_t speed);
 void timedShoot(void);
 void encoderShoot(void);
 
+//auton functions
+void driveAndShootAuton(void);
+
 //get sign of number for all types
 #define sign(x) ((x > 0) - (x < 0))
 
