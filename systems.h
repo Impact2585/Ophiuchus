@@ -43,24 +43,45 @@ void setReversed(struct driveSystem* drivetrain);
 
 //shooter functions and constants
 #define DEFAULT_SHOOTER_SPEED 100
+struct shootInfo {
+	int16_t forwardShoot;
+	int16_t backShoot;
+	int16_t shouldShoot;
+	int8_t isLocked;
+	int8_t releaseLock;
+};
+
+//initializes all values of the shootInfo struct to 0
+#define INIT_SHOOTER(shooter) struct shootInfo shooter = {\
+	.forwardShoot = 0,\
+	.backShoot = 0,\
+	.shouldShoot = 0,\
+	.isLocked = 0,\
+	.releaseLock = 0\
+}
+
+void releaseLock(void);
 void initializeShootSystemThread(void);
-void setShootSpeeds(int16_t);
+void setShootSpeeds(int16_t speed);
 void rotateTowardsDegrees(int32_t degrees);
 int16_t getShooterEncoderID(void);
 int32_t getShooterEncoderValue(void);
+void getShooterInput(struct shootInfo *shooter);
 
 // lift functions and constants
 #define DEFAULT_LIFT_SPEED 67
 void runLiftTask(void);
 void initializeLiftSystemThread(void);
 void setLiftSpeed(int16_t speed);
-void timedShoot(void);
+void primeForShooting(void);
 void encoderShoot(void);
 
-//auton functions
+//auton functions and constants
+#define AUTON_DRIVE_SPEED 67
 void driveAndShootAuton(void);
 
 //get sign of number for all types
 #define sign(x) ((x > 0) - (x < 0))
 
-#endif /* SYSTEMS_H_ */
+#endif 
+/* SYSTEMS_H_ */
