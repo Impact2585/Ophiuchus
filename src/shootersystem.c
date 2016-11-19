@@ -7,19 +7,23 @@
 static char* SHOOT_TASK_NAME = "shoot";
 
 //the lift task to run
-void runShootTask(void) {
-	int16_t forwardShoot = vexControllerGet(MANUAL_SHOOT_FORWARD);
-	int16_t backShoot = vexControllerGet(MANUAL_SHOOT_BACKWARD);
-	int16_t shouldShoot = vexControllerGet(SHOOT);
+void runShootTask(struct shootInfo *shooter) {
+	//grabs input for shooter
+	getShooterInput(shooter);
 
-	//moves forward then back
-	if(shouldShoot) {
-		timedShoot();
+	//moves catapult backwards and locks it if button is pressed and the shooter isn't already locked
+	if(shooter->shouldShoot && !shooter->isLocked) {
+		primeForShooting();
+		shooter->isLocked = 1;
+	} else if(shooter->releaseLock && shooter->isLocked) {
+		//releases lock and sets isLocked to 0
+		releaseLock();
+		shooter->isLocked = 0;
 	} else {
 		//manual control of the shooter
-		if(forwardShoot) {
+		if(shooter->forwardShoot) {
 			setShootSpeeds(67);
-		} else if(backShoot) {
+		} else if(shooter->backShoot) {
 			setShootSpeeds(-67);
 		} else {
 			setShootSpeeds(0);
@@ -27,13 +31,26 @@ void runShootTask(void) {
 	}
 }
 
-//use timed shoot
-void timedShoot(void) {
+//moves the catapult backwards and locks it in place with pneumatics
+void primeForShooting(void) {
 	setShootSpeeds(DEFAULT_SHOOTER_SPEED);
 	vexSleep(3000);
-	setShootSpeeds(-DEFAULT_SHOOTER_SPEED);
-	vexSleep(2500);
+	//let Jesus and rubber bands do the rest
 	setShootSpeeds(0);
+	//lock the pneumatics
+	vexDigitalPinSet(PNEUMATICS_PIN, 1);
+}
+
+//get input for the shooter
+void getShooterInput(struct shootInfo *shooter) {
+	shooter->forwardShoot = vexControllerGet(MANUAL_SHOOT_FORWARD);
+	shooter->backShoot = vexControllerGet(MANUAL_SHOOT_BACKWARD);
+	shooter->shouldShoot = vexControllerGet(SHOOT);
+}
+
+//release pneumatic lock
+void releaseLock(void) {
+	vexDigitalPinSet(PNEUMATICS_PIN, 0);
 }
 
 //use encoder values to shoot
@@ -45,13 +62,14 @@ void encoderShoot(void) {
 //default working area of the thread size is 512 bytes
 static WORKING_AREA(waLiftTask, DEFAULT_WA_SIZE);
 
-//the lift task thread
+//the shoot task thread
 static msg_t shootTask(void* arg) {
 	(void)arg;
+	INIT_SHOOTER(shooter);
 	vexTaskRegister(SHOOT_TASK_NAME);
 	while(1) {
 		//runs the shooter task
-		runShootTask();
+		runShootTask(&shooter);
 
 		//don't hog cpu
 		vexSleep(25);
@@ -66,10 +84,8 @@ void initializeShootSystemThread(void) {
 
 //sets the lift speeds
 void setShootSpeeds(int16_t speed) {
-	vexMotorSet(SHOOTER_MOTOR_1, speed);
-	vexMotorSet(SHOOTER_MOTOR_2, -speed);
-	vexMotorSet(SHOOTER_MOTOR_BOTTOM_LEFT, speed);
-	vexMotorSet(SHOOTER_MOTOR_BOTTOM_RIGHT, -speed);
+	vexMotorSet(SHOOTER_MOTOR_LEFT, speed);
+	vexMotorSet(SHOOTER_MOTOR_RIGHT, -speed);
 }
 
 //get the shooter encoder's count
@@ -79,7 +95,7 @@ int32_t getShooterEncoderValue(void) {
 
 //gets the ID of the shooter encoder
 int16_t getShooterEncoderID(void) {
-	return vexMotorEncoderIdGet(SHOOTER_MOTOR_1);
+	return vexMotorEncoderIdGet(SHOOTER_MOTOR_LEFT);
 }
 
 //rotate towards degrees
