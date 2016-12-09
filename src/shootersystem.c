@@ -22,21 +22,26 @@ void runShootTask(struct shootInfo *shooter) {
 	} else {
 		//manual control of the shooter
 		if(shooter->forwardShoot) {
-			setShootSpeeds(67);
+			setShootSpeed(DEFAULT_SHOOTER_SPEED);
 		} else if(shooter->backShoot) {
-			setShootSpeeds(-67);
+			setShootSpeed(-DEFAULT_SHOOTER_SPEED);
 		} else {
-			setShootSpeeds(0);
+			setShootSpeed(0);
 		}
+		
+		if(shooter->lock)
+			vexDigitalPinSet(PNEUMATICS_PIN, 1);
+		else if(shooter->unlock)
+			vexDigitalPinSet(PNEUMATICS_PIN, 0);
 	}
 }
 
 //moves the catapult backwards and locks it in place with pneumatics
 void primeForShooting(void) {
-	setShootSpeeds(DEFAULT_SHOOTER_SPEED);
+	setShootSpeed(-DEFAULT_SHOOTER_SPEED);
 	vexSleep(3000);
 	//let Jesus and rubber bands do the rest
-	setShootSpeeds(0);
+	setShootSpeed(0);
 	//lock the pneumatics
 	vexDigitalPinSet(PNEUMATICS_PIN, 1);
 }
@@ -45,12 +50,18 @@ void primeForShooting(void) {
 void getShooterInput(struct shootInfo *shooter) {
 	shooter->forwardShoot = vexControllerGet(MANUAL_SHOOT_FORWARD);
 	shooter->backShoot = vexControllerGet(MANUAL_SHOOT_BACKWARD);
+	shooter->releaseLock = vexControllerGet(Btn6U);
 	shooter->shouldShoot = vexControllerGet(SHOOT);
+	shooter->lock = vexControllerGet(LOCK);
+	shooter->unlock = vexControllerGet(UNLOCK);
 }
 
 //release pneumatic lock
 void releaseLock(void) {
 	vexDigitalPinSet(PNEUMATICS_PIN, 0);
+	setShootSpeed(40);
+	vexSleep(500);
+	setShootSpeed(0);
 }
 
 //use encoder values to shoot
@@ -83,9 +94,9 @@ void initializeShootSystemThread(void) {
 }
 
 //sets the lift speeds
-void setShootSpeeds(int16_t speed) {
-	vexMotorSet(SHOOTER_MOTOR_LEFT, speed);
-	vexMotorSet(SHOOTER_MOTOR_RIGHT, -speed);
+void setShootSpeed(int16_t speed) {
+	vexMotorSet(SHOOT_MOTOR_1, speed);
+    vexMotorSet(SHOOT_MOTOR_2, -speed);
 }
 
 //get the shooter encoder's count
@@ -95,7 +106,7 @@ int32_t getShooterEncoderValue(void) {
 
 //gets the ID of the shooter encoder
 int16_t getShooterEncoderID(void) {
-	return vexMotorEncoderIdGet(SHOOTER_MOTOR_LEFT);
+	return vexMotorEncoderIdGet(SHOOT_MOTOR_1);
 }
 
 //rotate towards degrees
@@ -103,10 +114,10 @@ void rotateTowardsDegrees(int32_t degrees) {
 	//starts the encoder
 	vexEncoderStart(getShooterEncoderID());
 	while(abs(getShooterEncoderValue()) < abs(degrees)) {
-		setShootSpeeds(sign(degrees)* DEFAULT_SHOOTER_SPEED);
+		setShootSpeed(sign(degrees)* DEFAULT_SHOOTER_SPEED);
 	}
 	//sets the motor speeds back to 0
-	setShootSpeeds(0);
+	setShootSpeed(0);
 	//sets the encoder value back to 0
 	vexEncoderSet(getShooterEncoderID(), 0);
 }

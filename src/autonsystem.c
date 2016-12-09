@@ -1,4 +1,3 @@
-/* Autonomous mode */
 #include "../ports.h"
 #include "../systems.h"
 #include "vex.h"
@@ -7,11 +6,12 @@
 
 //auton task that drives forward, picks up an object, and shoots a low goal
 void driveAndShootAuton(void) {
+	moveClaw(1);
 	//drive forward for 3s
 	motorDriveControlRight(AUTON_DRIVE_SPEED);
 	motorDriveControlLeft(AUTON_DRIVE_SPEED);
 	vexSleep(3000);
-
+	
 	//lift down the shooter and lock it
 	primeForShooting();
 
@@ -19,17 +19,18 @@ void driveAndShootAuton(void) {
 	motorDriveControlRight(AUTON_DRIVE_SPEED);
 	motorDriveControlLeft(AUTON_DRIVE_SPEED);
 	vexSleep(500);
-
+	moveClaw(-1);
 	//turn left for 1.5s
 	motorDriveControlRight(AUTON_DRIVE_SPEED);
 	motorDriveControlLeft(-AUTON_DRIVE_SPEED);
 	vexSleep(1500);
-
+	
 	//drive forward for 5s
 	motorDriveControlRight(AUTON_DRIVE_SPEED);
 	motorDriveControlLeft(AUTON_DRIVE_SPEED);
 	vexSleep(5000);
 
 	//release the shooter
+	moveClaw(1);
 	releaseLock();
 }

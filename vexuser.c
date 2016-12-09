@@ -69,7 +69,7 @@ static  vexMotorCfg mConfig[kVexMotorNum] = {
 		{ kVexMotor_7,      kVexMotorUndefined,      kVexMotorNormal,       kVexSensorNone,        0 },
 		{ kVexMotor_8,      kVexMotorUndefined,      kVexMotorNormal,       kVexSensorNone,        0 },
 		{ kVexMotor_9,      kVexMotorUndefined,      kVexMotorNormal,       kVexSensorNone,        0 },
-		{ kVexMotor_10,     kVexMotor393T,           kVexMotorNormal,       kVexSensorIME,         kImeChannel_2 }
+		{ kVexMotor_10,     kVexMotorUndefined,      kVexMotorNormal,       kVexSensorNone,        0 }
 };
 
 
@@ -100,6 +100,16 @@ vexUserInit()
 
 }
 
+void autonShoot() {
+	motorDriveControlRight(-70);
+	motorDriveControlLeft(-70);
+	vexSleep(3000);
+	motorDriveControlLeft(0);
+	motorDriveControlRight(0);
+	moveClaw(-1);
+	releaseLock();
+}
+
 /*-----------------------------------------------------------------------------*/
 /** @brief      Autonomous                                                     */
 /*-----------------------------------------------------------------------------*/
@@ -113,7 +123,8 @@ vexAutonomous( void *arg )
 
 	// Must call this
 	vexTaskRegister("auton");
-	driveAndShootAuton();
+	//driveAndShootAuton();
+	autonShoot();
 	while(1)
 	{
 		// Don't hog cpu
@@ -141,9 +152,10 @@ vexOperator( void *arg )
 	vexTaskRegister("operator");
 
 	//initialize the threads for the other tasks
+	
 	initializeDriveSystemThread();
 	initializeShootSystemThread();
-	initializeLiftSystemThread();
+	initializeClawSystemThread();
 
 	// Run until asked to terminate
 	while(!chThdShouldTerminate()) {
